@@ -27,19 +27,11 @@
     font-family: 'VT323', monospace;
     font-size: 20px;
     overflow-x: hidden;
-    cursor: none;
+    /* Pixel crosshair cursor via CSS — works everywhere, no JS needed */
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='14' y='2' width='4' height='10' fill='%23e94560'/%3E%3Crect x='14' y='20' width='4' height='10' fill='%23e94560'/%3E%3Crect x='2' y='14' width='10' height='4' fill='%23e94560'/%3E%3Crect x='20' y='14' width='10' height='4' fill='%23e94560'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%23fff'/%3E%3Crect x='14' y='14' width='4' height='4' fill='%23e94560'/%3E%3C/svg%3E") 16 16, crosshair;
   }
 
-  /* Custom pixel mouse cursor */
-  #custom-cursor {
-    position: fixed;
-    top: 0; left: 0;
-    width: 24px; height: 32px;
-    pointer-events: none;
-    z-index: 99999;
-    transform: translate(-2px, -2px);
-    image-rendering: pixelated;
-  }
+  a, button { cursor: inherit; }
 
   /* Scanline effect */
   body::before {
@@ -51,11 +43,9 @@
     z-index: 9999;
   }
 
-  /* Pixel border mixin */
   .pixel-box {
     border: var(--pixel) solid var(--accent);
     box-shadow: var(--pixel) var(--pixel) 0 #000, inset var(--pixel) var(--pixel) 0 rgba(255,255,255,0.05);
-    image-rendering: pixelated;
   }
 
   .pixel-box-green {
@@ -164,7 +154,6 @@
     gap: 32px;
     align-items: center;
     flex-wrap: wrap;
-    max-width: 100%;
   }
 
   .contact-item {
@@ -182,7 +171,7 @@
   .contact-icon {
     width: 20px; height: 20px;
     display: inline-block;
-    image-rendering: pixelated;
+    flex-shrink: 0;
   }
 
   /* ── MAIN ── */
@@ -262,16 +251,12 @@
   }
 
   .service-card:hover { transform: translate(-2px, -2px); }
-
-  .service-card:hover .service-price {
-    color: #fff;
-  }
+  .service-card:hover .service-price { color: #fff; }
 
   .service-icon {
     font-size: 32px;
     margin-bottom: 12px;
     display: block;
-    image-rendering: pixelated;
   }
 
   .service-name {
@@ -296,19 +281,13 @@
     transition: color 0.1s;
   }
 
-  /* Custom Quote card clickable */
-  .service-card.clickable {
-    cursor: pointer;
-  }
-
-  .service-card.clickable:hover {
-    border-color: #fff;
-  }
+  .service-card.clickable { cursor: pointer; }
+  .service-card.clickable:hover { border-color: #fff; }
 
   /* ── GALLERY ── */
   .gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
     margin-bottom: 60px;
   }
@@ -318,36 +297,56 @@
     overflow: hidden;
     cursor: pointer;
     background: var(--bg2);
+    display: flex;
+    flex-direction: column;
   }
 
-  .gallery-img {
+  /* Image wrapper: shows full image at natural ratio, no cropping */
+  .gallery-img-wrap {
     width: 100%;
-    display: block;
-    image-rendering: pixelated;
-  }
-
-  .gallery-img-placeholder {
-    width: 100%;
-    min-height: 180px;
+    background: #0a0a1a;
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    color: var(--muted);
-    font-size: 16px;
-    padding: 20px;
-    line-height: 2;
+    padding: 12px;
+    min-height: 160px;
+  }
+
+  .gallery-img-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;          /* natural height — no cropping */
+    max-height: 320px;     /* cap very tall images */
+    object-fit: contain;   /* never clips, letterboxes if needed */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* Placeholder for "more coming soon" */
+  .gallery-placeholder {
+    width: 100%;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green);
+    font-size: 28px;
+    letter-spacing: 4px;
+    opacity: 0.4;
   }
 
   .gallery-overlay {
     position: absolute;
-    inset: 0;
-    background: rgba(233,69,96,0.85);
+    top: 0; left: 0; right: 0;
+    /* only cover the image area, not the label */
+    bottom: 64px;
+    background: rgba(233,69,96,0.82);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.15s;
+    pointer-events: none;
   }
 
   .gallery-item:hover .gallery-overlay { opacity: 1; }
@@ -362,6 +361,7 @@
     padding: 12px 16px;
     background: var(--bg2);
     border-top: 2px solid var(--border);
+    flex-shrink: 0;
   }
 
   .gallery-label-title {
@@ -369,6 +369,7 @@
     font-size: 8px;
     color: var(--text);
     margin-bottom: 4px;
+    line-height: 1.6;
   }
 
   .gallery-label-type {
@@ -437,6 +438,8 @@
     max-width: 90vw;
     max-height: 80vh;
     image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    object-fit: contain;
     border: 3px solid var(--accent);
     box-shadow: 4px 4px 0 #000;
   }
@@ -502,10 +505,7 @@
     color: var(--accent2);
   }
 
-  .popup-item svg {
-    flex-shrink: 0;
-    width: 24px; height: 24px;
-  }
+  .popup-item svg { flex-shrink: 0; width: 24px; height: 24px; }
 
   .popup-close {
     font-family: 'Press Start 2P', monospace;
@@ -519,10 +519,7 @@
     transition: color 0.1s, border-color 0.1s;
   }
 
-  .popup-close:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
+  .popup-close:hover { color: var(--accent); border-color: var(--accent); }
 
   /* ── CORNER DECOR ── */
   .corner-decor {
@@ -541,19 +538,18 @@
     transform: translateY(24px);
     transition: opacity 0.5s ease, transform 0.5s ease;
   }
-  .reveal.visible {
-    opacity: 1;
-    transform: none;
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 600px) {
+    .header-grid { grid-template-columns: 1fr; }
+    .header-badge { align-items: flex-start; }
+    header { padding: 40px 20px 32px; }
+    main { padding: 40px 20px; }
+    .contact-bar { padding: 12px 20px; gap: 16px; }
   }
 </style>
 </head>
 <body>
-
-<!-- CUSTOM CURSOR -->
-<svg id="custom-cursor" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
-  <!-- Arrow body -->
-  <polygon points="2,2 2,26 8,20 12,30 15,29 11,19 18,19" fill="#e94560" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
-</svg>
 
 <!-- HEADER -->
 <header>
@@ -665,7 +661,9 @@
     <div class="gallery">
 
       <div class="gallery-item pixel-box" onclick="openLightbox(this)">
-        <div class="gallery-img-placeholder"><img src="UIExample.png"<br></div>
+        <div class="gallery-img-wrap">
+          <img src="UIExample.png" alt="UI Kit — Game Menus">
+        </div>
         <div class="gallery-overlay"><span>VIEW</span></div>
         <div class="gallery-label">
           <div class="gallery-label-title">UI KIT — GAME MENUS</div>
@@ -674,7 +672,9 @@
       </div>
 
       <div class="gallery-item pixel-box" onclick="openLightbox(this)">
-        <div class="gallery-img-placeholder"><img src="Witch.png"><br></div>
+        <div class="gallery-img-wrap">
+          <img src="Witch.png" alt="Chibi Witch Character">
+        </div>
         <div class="gallery-overlay"><span>VIEW</span></div>
         <div class="gallery-label">
           <div class="gallery-label-title">CHIBI CHARACTER</div>
@@ -683,7 +683,9 @@
       </div>
 
       <div class="gallery-item pixel-box" onclick="openLightbox(this)">
-        <div class="gallery-img-placeholder"><img src="WorldExample.png"><br></div>
+        <div class="gallery-img-wrap">
+          <img src="WorldExample.png" alt="World Tileset">
+        </div>
         <div class="gallery-overlay"><span>VIEW</span></div>
         <div class="gallery-label">
           <div class="gallery-label-title">WORLD TILESET & BG</div>
@@ -692,7 +694,9 @@
       </div>
 
       <div class="gallery-item pixel-box" onclick="openLightbox(this)">
-        <div class="gallery-img-placeholder"><img src="ChibiExample1.png"><br></div>
+        <div class="gallery-img-wrap">
+          <img src="ChibiExample1.png" alt="Chibi Character">
+        </div>
         <div class="gallery-overlay"><span>VIEW</span></div>
         <div class="gallery-label">
           <div class="gallery-label-title">CHIBI CHARACTER</div>
@@ -701,7 +705,9 @@
       </div>
 
       <div class="gallery-item pixel-box" onclick="openLightbox(this)">
-        <div class="gallery-img-placeholder"><img src="ExampleSpritesheet1.png"><br></div>
+        <div class="gallery-img-wrap">
+          <img src="ExampleSpritesheet1.png" alt="Character Spritesheet">
+        </div>
         <div class="gallery-overlay"><span>VIEW</span></div>
         <div class="gallery-label">
           <div class="gallery-label-title">CHARACTER SPRITESHEET</div>
@@ -709,10 +715,10 @@
         </div>
       </div>
 
-      <div class="gallery-item pixel-box-green" style="cursor:default;">
-        <div class="gallery-img-placeholder" style="color:#4ecb71;"></div>
+      <div class="gallery-item pixel-box-green" style="cursor: default; pointer-events: none;">
+        <div class="gallery-placeholder">· · ·</div>
         <div class="gallery-label">
-          <div class="gallery-label-title">MORE COMING SOON</div>
+          <div class="gallery-label-title" style="color: var(--green);">MORE COMING SOON</div>
           <div class="gallery-label-type">—</div>
         </div>
       </div>
@@ -755,7 +761,7 @@
   <div class="popup-box">
     <div class="popup-title">💬 LET'S TALK</div>
     <a href="https://discord.com/users/DashTheEvil" class="popup-item" target="_blank">
-      <svg viewBox="0 0 24 24" fill="#5865F2">
+      <svg viewBox="0 0 24 24">
         <rect width="24" height="24" rx="5" fill="#5865F2"/>
         <path d="M16.2 6.6c-1.2-.6-2.4-.9-2.4-.9l-.2.5c1.1.3 2 .7 3 1.4A9.9 9.9 0 0 0 12 7.2c-1.5 0-3.1.3-4.6 1 1-.7 2-.1 3-1.5l-.3-.6s-1.2.3-2.4.9C6.5 8.8 5.4 11.4 5.4 13.8c0 0 .6 1.1 2.4 1.6l.5-1c-.7-.2-1.2-.6-1.2-.6 1 .6 2.2 1 4.9 1s3.9-.4 4.9-1c0 0-.5.4-1.2.6l.5 1c1.8-.5 2.4-1.6 2.4-1.6 0-2.4-1.2-5-2.4-6.2Zm-6 5.6c-.6 0-1.1-.5-1.1-1.1 0-.6.5-1.1 1.1-1.1.6 0 1.1.5 1.1 1.1 0 .6-.5 1.1-1.1 1.1Zm4.3 0c-.6 0-1.1-.5-1.1-1.1 0-.6.5-1.1 1.1-1.1.6 0 1.1.5 1.1 1.1 0 .6-.5 1.1-1.1 1.1Z" fill="#fff"/>
       </svg>
@@ -773,14 +779,7 @@
 </div>
 
 <script>
-  // Custom cursor
-  const cursor = document.getElementById('custom-cursor');
-  document.addEventListener('mousemove', e => {
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top = e.clientY + 'px';
-  });
-
-  // Lightbox
+  // Lightbox — grabs the src from the img inside the clicked card
   function openLightbox(el) {
     const img = el.querySelector('img');
     if (!img) return;
@@ -790,7 +789,10 @@
   function closeLightbox() {
     document.getElementById('lightbox').classList.remove('active');
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLightbox(); closeContactPopup(); } });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeLightbox(); closeContactPopup(); }
+  });
 
   // Contact popup
   function openContactPopup() {
